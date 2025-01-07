@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "node src/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node test/test.js"
   },
   "keywords": [],
   "author": "",
@@ -14,6 +14,8 @@
   "dependencies": {
     "@whiskeysockets/baileys": "^6.7.9",
     "chalk": "^5.4.1",
+    "dayjs": "^1.11.13",
+    "nodemon": "^3.1.9",
     "qrcode-terminal": "^0.12.0"
   }
 }
