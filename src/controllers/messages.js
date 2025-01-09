@@ -1,5 +1,6 @@
 import chalk from "chalk";
 import { dateTime } from "../utils/dateUtils.js";
+import { config } from "../config/config.js";
 const { date, time } = dateTime();
 
 export const handlerMessages = async (sock, m) => {
@@ -36,8 +37,21 @@ ${chalk.blue("=> In")} ${chalk.green(m.key.remoteJid)}
 `
     );
 
-    if (textMsg == "ping") {
-      reply("pong!");
+    let command;
+    for (const p of config.prefix) {
+      if (textMsg.startsWith(p)) {
+        command = textMsg.slice(p.length).split(" ")[0].toLowerCase();
+        break;
+      }
+    }
+
+    switch (command) {
+      case "ping":
+        reply("pong");
+        break;
+
+      default:
+        break;
     }
   } catch (e) {
     console.log(`Handler Message Error: ${e.message}`);

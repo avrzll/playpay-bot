@@ -1,3 +1,3 @@
-import { dateTime } from "../src/utils/dateUtils.js";
-const { date, time } = dateTime();
-console.log(time);
+import "dotenv/config";
+
+console.log(process.env.SECRET_KEY);
