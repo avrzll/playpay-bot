@@ -1,3 +1,4 @@
 import "dotenv/config";
+import { validateFreeFireID } from "../src/utils/validator.js";
 
-console.log(process.env.SECRET_KEY);
+console.log(validateFreeFireID("9808233e"));
