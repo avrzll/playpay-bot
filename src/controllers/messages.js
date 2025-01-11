@@ -50,6 +50,12 @@ ${chalk.blue("=> In")} ${chalk.green(m.key.remoteJid)}
         reply("pong");
         break;
 
+      case "cekff":
+        const id = textMsg.split(" ")[1];
+        console.log(id);
+
+        break;
+
       default:
         break;
     }
