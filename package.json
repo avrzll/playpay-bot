@@ -5,7 +5,18 @@
   "type": "module",
   "scripts": {
     "start": "node src/index.js",
-    "test": "node test/test.js"
+    "test": "node test/test.js",
+    "dev": "nodemon src/index.js"
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "test/*",
+      "node_modules/*",
+      "src/sessions",
+      ".gitignore",
+      "package.json",
+      "package-lock.json"
+    ]
   },
   "keywords": [],
   "author": "",
@@ -13,6 +24,7 @@
   "description": "",
   "dependencies": {
     "@whiskeysockets/baileys": "^6.7.9",
+    "axios": "^1.7.9",
     "chalk": "^5.4.1",
     "dayjs": "^1.11.13",
     "dotenv": "^16.4.7",
