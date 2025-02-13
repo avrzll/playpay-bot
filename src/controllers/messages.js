@@ -1,32 +1,27 @@
 import "dotenv/config";
 import chalk from "chalk";
-import { dateTime } from "../utils/dateUtils.js";
+import { dateTime } from "../utils/date-utils.js";
 import { config } from "../config/config.js";
-import { fetchGameData } from "../services/fetchGameData.js";
+import { reply } from "../utils/reply.js";
+import { react } from "../utils/reaction.js";
+import {
+  addUser,
+  cekFF,
+  cekML,
+  promote,
+  demote,
+  accountInfo,
+} from "./case/index.js";
 
 export const handlerMessages = async (sock, m) => {
   const { date, time } = dateTime();
-  // console.log(m);
-  const reply = async (text) => {
-    await sock.sendMessage(m.key.remoteJid, { text: text }, { quoted: m });
-  };
-
-  const react = async (reaction) => {
-    const reactionMessage = {
-      react: {
-        text: reaction,
-        key: m.key,
-      },
-    };
-    await sock.sendMessage(m.key.remoteJid, reactionMessage);
-  };
-
+  console.log(m);
   try {
     if (!m.message) return;
 
     const msgType = Object.keys(m.message)[0];
 
-    const textMsg =
+    const msg =
       msgType === "conversation"
         ? m.message.conversation
         : msgType === "extendedTextMessage"
@@ -43,7 +38,7 @@ export const handlerMessages = async (sock, m) => {
       `
 ${chalk.black.bgWhite("[ CMD ]")} ${chalk.black.bgYellow(
         `${date} | ${time} WIB`
-      )} ${chalk.black.bgBlue(textMsg)}
+      )} ${chalk.black.bgBlue(msg)}
 ${chalk.magenta("=> From")} ${chalk.green(m.pushName)} ${chalk.yellow(sender)}
 ${chalk.blue("=> In")} ${chalk.green(m.key.remoteJid)}
 `
@@ -51,76 +46,62 @@ ${chalk.blue("=> In")} ${chalk.green(m.key.remoteJid)}
 
     let command;
     for (const p of config.prefix) {
-      if (textMsg.startsWith(p)) {
-        command = textMsg.slice(p.length).split(" ")[0].toLowerCase();
+      if (msg.startsWith(p)) {
+        command = msg.slice(p.length).split(" ")[0].toLowerCase();
         break;
       }
     }
 
     switch (command) {
       case "ping":
-        reply("pong");
+        await reply(m, sock, "pong");
+        await react(m, sock, "🗿");
+        break;
+
+      // <=================================== CREATE USER ====================================>
+      case "regist":
+        addUser(m, sock);
+        break;
+
+      // <==================================== PROMOTE ======================================>
+      case "promote":
+        promote(m, msg, sock);
+        break;
+
+      // <===================================== DEMOTE =======================================>
+      case "demote":
+        demote(m, msg, sock);
+        break;
+
+      // <================================= ACCOUNT INFO ====================================>
+      case "info":
+        accountInfo(m, msg, sock);
         break;
 
       // <======================================== CEKFF ========================================>
       case "cekff":
-        const idff = textMsg.split(" ")[1];
-        if (!idff) {
-          await react("❌");
-          await reply("Mana id nya?\nContoh: .cekff 7588686637");
-          return;
-        }
-        await react("🕒");
-
-        const resff = await fetchGameData(`${"ff-global"}/${idff}`);
-
-        if (!resff.error) {
-          const username = resff.data.username;
-          await react("✅");
-          await reply(username);
-        } else if (resff.error && resff.status === 404) {
-          await react("❌");
-          await reply("Username tidak ditemukan !");
-        } else {
-          await react("⚠️");
-          await reply(resff.message);
-        }
+        const idff = msg.split(" ")[1];
+        await cekFF(m, sock, idff);
         break;
 
       // <======================================== CEKML ========================================>
       case "cekml":
-        const idml = textMsg.split(" ")[1];
-        const zone = textMsg.split(" ")[2];
-        if (!idml || !zone) {
-          await react("❌");
-          await reply("Mana id nya?\nContoh: .cekml 1393323764 15748");
-          return;
-        }
-        await react("🕒");
+        const idml = msg.split(" ")[1];
+        const zone = msg.split(" ")[2];
+        await cekML(m, sock, idml, zone);
+        break;
 
-        const resml = await fetchGameData(
-          `${"mobile-legends"}/${idml}/${zone}`
-        );
-
-        if (!resml.error) {
-          const username = resml.data.username;
-          await react("✅");
-          await reply(username);
-        } else if (resml.error && resml.status === 404) {
-          await react("❌");
-          await reply("Username tidak ditemukan !");
-        } else {
-          await react("⚠️");
-          await reply(resml.message);
-        }
+      case "ff":
+        const product = msg.split(" ")[1];
+        const id = msg.split(" ")[2];
         break;
 
       default:
         break;
     }
   } catch (e) {
-    await react("⚠️");
-    await reply(`Handler Message Error: ${e.message}`);
+    await react(m, sock, "⚠️");
+    await reply(m, sock, `Handler Message Error: ${e.message}`);
     console.log(`Handler Message Error: ${e.message}`);
   }
 };

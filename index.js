@@ -11,8 +11,9 @@ import {
 // const { default: makeWASocket } = require("@whiskeysockets/baileys");
 
 import readline from "readline";
-import { handlerMessages } from "./controllers/messages.js";
+import { handlerMessages } from "./src/controllers/messages.js";
 import Pino from "pino";
+import Database from "./src/database/database.js";
 
 const P = Pino({ level: "silent" });
 
@@ -22,6 +23,8 @@ const rl = readline.createInterface({
 });
 
 const question = (text) => new Promise((resolve) => rl.question(text, resolve));
+
+const db = new Database();
 
 async function startBot() {
   const { state, saveCreds } = await useMultiFileAuthState("src/sessions");
